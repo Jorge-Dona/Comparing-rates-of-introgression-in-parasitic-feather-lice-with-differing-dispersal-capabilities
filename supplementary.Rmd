@@ -1,0 +1,2280 @@
+---
+title: "Supplementary material"
+author: "Comparing rates of introgression in parasitic feather lice with differing dispersal capabilities"
+date: "2020"
+output: html_document
+---
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.height= 4, fig.width=4}
+library(filenamer)                                                                                 
+
+library(knitr)
+library(kableExtra)                                                                                                                  
+'%ni%' <- Negate('%in%')
+p_values<- numeric()
+f_values<- numeric()
+Table_s1<- numeric()
+data_ggplot_values<-numeric()
+for(j in (1:100)){
+  
+setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/results1")
+
+filenames <- list.files()
+name_file<-numeric()
+introgression<-numeric()
+
+
+  
+  for(i in 1:length(filenames)){
+    # print(i)
+    name<- filenames[i]
+    # print(name)
+    # print(name)
+    setwd(file.path("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/results1", name))
+    
+    data<-read.table("OUT_speciesAvgDepth-d.txt")
+    data<-droplevels(data[-2,])
+    data<-droplevels(data[-1,])
+    data[,4]<-as.numeric(levels(data[,4]))[data[,4]]
+    
+    sum_mistagging<-sum(data[,4])
+    per_mistagging<-sum_mistagging*9/100
+    # per_mistagging_ind<-per_mistagging/length(data[,4]) Fixed approach
+    
+    for(z in 1:length(data[,4])){
+      mistaggin_random<- runif(min = 0, max = per_mistagging, n= 1)
+      data[z,4]<-data[z,4]-mistaggin_random
+      per_mistagging<-per_mistagging-mistaggin_random
+    }
+    
+    # data[,4]<-data[,4]-per_mistagging_ind
+    sp<- max(data[,4]) 
+    
+    intro_total<-  sum(data[,4])-sp
+    intro_total<-intro_total/sp
+    
+    name_max<-data[which.max(data[,4]),]
+    name_max<-droplevels(name_max[1,2])
+    
+    introgression<- rbind(cbind(paste(name_max),paste(intro_total),paste(filenames[i])),introgression)
+    
+    setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/results1")
+    
+    
+}
+  
+  ##
+  
+  setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/physconelloides/results1")
+  names_ind<-read.csv("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/srr_names.csv", header = FALSE)
+  filenames <- list.files()
+  name_file<-numeric()
+  introgression_2<-numeric()
+  
+  for(h in 1:length(filenames)){
+    
+    name<- filenames[h]
+    setwd(file.path("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/physconelloides/results1", name))
+    
+    data<-read.table("OUT_speciesAvgDepth-d.txt")
+    data<-data[-2,]
+    data<-droplevels(data[-1,])
+    
+    data[,4]<-as.numeric(levels(data[,4]))[data[,4]]
+    
+    sum_mistagging<-sum(data[,4])
+    per_mistagging<-sum_mistagging*9/100
+    # per_mistagging_ind<-per_mistagging/length(data[,4])
+    
+    for(q in 1:length(data[,4])){
+      mistaggin_random<- runif(min = 0, max = per_mistagging, n= 1)
+      data[q,4]<-data[q,4]-mistaggin_random
+      per_mistagging<-per_mistagging-mistaggin_random
+    }
+    
+    # data[,4]<-data[,4]-per_mistagging_ind
+    sp<- max(data[,4]) 
+    if(name == "SRR3632571") {
+     sp<- data[5,4]
+
+    }
+    
+    intro_total<-  sum(data[,4])-sp
+    intro_total<-intro_total/sp
+    
+    name_max<-data[which.max(data[,4]),]
+    name_max<-droplevels(name_max[1,2])
+    if(name == "SRR3632571") {
+      name_max<-data[5,4]
+      name_max<-"Physconelloides_eurysema_2"
+    }
+    
+    
+    
+    indv_name<-droplevels(subset(names_ind, names_ind[,1] == name))
+    indv_name<-  droplevels(indv_name[1,2])
+    introgression_2<- rbind(cbind(paste(name_max),paste(intro_total),paste(indv_name)),introgression_2)
+    
+    setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/physconelloides/results1")
+    
+    
+  }
+  
+  columbicola_species<-c( "Columbicola_drowni_drowni","Columbicola_passerinae_1","Columbicola_passerinae_2","Columbicola_altamimiae","Columbicola_gymnopeliae")
+  physconelloides_species<-c("Physconelloides_eurysema_3","Physconelloides_eurysema_4","Physconelloides_eurysema_1","Physconelloides_eurysema_2","Physconelloides_eurysema_5","Physconelloides_robbinsi","Physconelloides_emersoni")
+  
+  introgression<-subset(introgression, introgression[,1] %in% columbicola_species)
+  introgression_2<-subset(introgression_2, introgression_2[,1] %in% physconelloides_species)
+  introgression<-as.data.frame(introgression)
+  introgression$genus<- c(rep("Columbicola", times=nrow(introgression)))
+  
+  introgression_2<-as.data.frame(introgression_2)
+  introgression_2$genus<- c(rep("Physconelloides", times=nrow(introgression_2)))
+  
+  introgression$V2<-as.numeric(levels(introgression$V2))[introgression$V2]
+  introgression_2$V2<-as.numeric(levels(introgression_2$V2))[introgression_2$V2]
+  
+  
+  intro<-rbind(introgression,introgression_2)
+  library(ggplot2)
+  library(reshape2)
+  data_ggplot<- melt(intro)
+  
+  
+  library(lme4)
+  gaussian_model <- glm(value ~ genus + V1, data = data_ggplot, family=gaussian )
+  
+  # summary(gaussian_model)
+  library(car)
+  model_anova<-anova(gaussian_model, test="F")
+  p_values<-rbind(model_anova$`Pr(>F)`[2], p_values)
+  f_values<-rbind(model_anova$F[2], f_values)
+  
+  data_ggplot_values<- rbind(cbind(data_ggplot$V1,data_ggplot$V3,data_ggplot$genus,data_ggplot$variable, data_ggplot$value,j),data_ggplot_values)
+  Table_s1<- rbind(cbind(j,model_anova$F[2], model_anova$`Pr(>F)`[2]), Table_s1)
+}
+Table_s1<- as.data.frame(Table_s1)
+Table_s1<- Table_s1[order(Table_s1$j),]
+colnames(Table_s1) <- c("Iteration", "F", "P-value")
+rownames(Table_s1) <- NULL
+kable(Table_s1, caption = "Table S1. Results of the GLMs of each iteration of the R simulation.") %>%
+  kable_styling() %>%
+  scroll_box(width = "500px", height = "600px")
+
+
+# print(paste("Min p-value from randomizations = ", min(p_values)))
+# print(paste("Max p-value from randomizations = ", max(p_values)))
+# print(paste("Mean p-value from randomizations = ", mean(p_values)))
+# Table_s1<- cbind(j,f_values, p_values)
+library(plyr)
+data_ggplot_values<- as.data.frame(data_ggplot_values)
+data_ggplot_values$V5<-as.numeric(levels(data_ggplot_values$V5))[data_ggplot_values$V5]
+
+data_test<-ddply(data_ggplot_values,c("V1","V2","V3","V4"),summarise, V5 = mean (V5))
+
+data_ggplot<-data_test
+
+colnames(data_ggplot)[3] <- "genus"
+colnames(data_ggplot)[5] <- "value"
+
+
+data_ggplot$genus<-as.factor(data_ggplot$genus)
+
+p<-ggplot(data_ggplot, aes(x=genus, y=value,fill=genus)) +  geom_boxplot(outlier.shape=NA)+  ylab("Level of introgression") +xlab("")+
+  theme(axis.line = element_line(colour = "black"), panel.grid.major = element_blank(), 
+        legend.position="right",     panel.grid.minor = element_blank(),panel.border = element_blank(),
+        legend.key = element_blank(),panel.background = element_blank(),	
+        axis.text.x=element_text(angle = 0,vjust=0.5,colour = "black"),axis.text.y=element_text(colour = "black"),
+        axis.ticks = element_line(colour = "black")) + theme(legend.position="none",axis.text.x = element_text(face = "italic"))
+#  p + geom_jitter(shape=16, position=position_jitter(0.1))+ scale_fill_brewer(palette="Dark2")
+# 
+# ggsave("Figure2.pdf")
+```
+
+
+
+
+
+<!-- ## Statistical analyses (using the mean values of the randomizations) -->
+
+
+<!-- There are significant differences between the introgression extent found in the two genera (using the Mann-Whitney U test).  -->
+<!-- ```{r warning=FALSE, message=FALSE} -->
+
+<!-- wilcox.test(introgression$V2,introgression_2$V2) -->
+
+
+<!-- ``` -->
+<!-- ### GLM -->
+
+<!-- However, some species show a higher rate of introgression (e.g., Columbicola passerinae 1 and 2 or Physconelloides eurysema 5) and are more represented in the sampling. So, I have run a GLM controlling for the louse species to account for these differences when estimating the differences between the two genera. -->
+
+
+<!-- ```{r warning=FALSE, message=FALSE} -->
+<!-- library(lme4) -->
+<!-- gaussian_model <- glm(value ~ genus + V1, data = data_ggplot, family=gaussian ) -->
+<!-- install.packages("MuMIn") -->
+<!-- install.packages("rsq") -->
+<!-- library(rsq) -->
+<!-- rsq(gaussian_model) -->
+
+<!-- summary(gaussian_model) -->
+<!-- library(car) -->
+<!-- anova(gaussian_model, test="F") -->
+<!-- #  -->
+<!-- # <!-- plot(gaussian_model) --> 
+<!-- # <!-- ``` --> 
+<!-- #  -->
+<!-- # <!-- #### GLM without outliers --> 
+<!-- # <!-- ```{r echo=FALSE, warning=FALSE, message=FALSE} --> 
+<!-- # <!-- # Now without outliers --> 
+<!-- # <!-- outliers<-c("5","6") --> 
+<!-- # <!-- outliers_d<-which(rownames(data_ggplot) %ni% outliers)  --> 
+<!-- # <!-- data_ggplot_trimmed<-data_ggplot[outliers_d,]  --> 
+<!-- #  -->
+<!-- # <!-- library(lme4) --> 
+<!-- # <!-- gaussian_model <- glm(value ~ genus + V1, data = data_ggplot_trimmed, family=gaussian )#nAGQ=0 --> 
+<!-- # <!-- #gaussian_model2 <- glmer(log1p(V1) ~ switch + V2 +(0+switch|V4) , data = matrix, family=gaussian )#nAGQ=0 --> 
+<!-- # <!-- summary(gaussian_model) --> 
+<!-- # <!-- library(car) --> 
+<!-- # <!-- anova(gaussian_model, test="F") --> 
+<!-- #  -->
+<!-- # <!-- plot(gaussian_model) -->
+
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+ data=read.csv(file = "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/table_S2.csv")
+ kable(data, caption = "Table S2. Specimen information, extraction results, library preparation details, Illumina sequencing statistics, locus assembly, and raw sequence data deposition for Columbicola wing lice from small New World ground-doves.") %>%
+   kable_styling() %>%
+   scroll_box(width = "1000px", height = "800px")
+ setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/data/pdf_last_sup/")
+
+```
+### Figs. S1-S12
+
+Click the links below (in blue) to visualize each plot. Individuals used for the phylonet analyses are asterisked.
+
+#### Columbicola
+
+
+##### Fig. S1. sppIDer results of Columbicola altamimiae samples
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#coalt">*coalt (Species coverage)</button> 
+<div id="coalt" class="collapse">    
+<object data="OUT_speciesDepth_coalt.pdf" width="750px" height="450px">
+    <embed src="OUT_speciesDepth_coalt.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#coalt2">coalt (Coverage across the genomes)</button> 
+<div id="coalt2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_coalt.pdf" width="750px" height="450px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_coalt.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#coalt3">coalt (Mapping quality)</button> 
+<div id="coalt3" class="collapse">    
+<object data="OUT_plotMQ_coalt.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_coalt.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Meaym_11_2_2016_5">Cosp_Meaym_11_2_2016_5 (Species coverage)</button> 
+<div id="Cosp_Meaym_11_2_2016_5" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Meaym_11_2_2016_5.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Meaym_11_2_2016_5.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Meaym_11_2_2016_5_2">Cosp_Meaym_11_2_2016_5 (Coverage across the genomes)</button> 
+<div id="Cosp_Meaym_11_2_2016_5_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Meaym_11_2_2016_5.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Meaym_11_2_2016_5.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Meaym_11_2_2016_5_3">Cosp_Meaym_11_2_2016_5 (Mapping quality)</button> 
+<div id="Cosp_Meaym_11_2_2016_5_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Meaym_11_2_2016_5.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Meaym_11_2_2016_5.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Meaym_11_2_2016_7">Cosp_Meaym_11_2_2016_7 (Species coverage)</button> 
+<div id="Cosp_Meaym_11_2_2016_7" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Meaym_11_2_2016_7.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Meaym_11_2_2016_7.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Meaym_11_2_2016_7_2">Cosp_Meaym_11_2_2016_7 (Coverage across the genomes)</button> 
+<div id="Cosp_Meaym_11_2_2016_7_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Meaym_11_2_2016_7.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Meaym_11_2_2016_7.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Meaym_11_2_2016_7_3">Cosp_Meaym_11_2_2016_7 (Mapping quality)</button> 
+<div id="Cosp_Meaym_11_2_2016_7_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Meaym_11_2_2016_7.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Meaym_11_2_2016_7.pdf">
+    </embed>
+</object>
+</div>
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+# 
+# #Columbicola_altamimiae
+# library("EBImage")
+# # gc()
+# setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Columbicola_altamimiae/")
+# # net_name<-c("Proctophyllodes_lusciniae.png","Trouessartia_trouessarti.png")
+# net_name <- list.files(path= "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Columbicola_altamimiae/",pattern = "png$") 
+# display(readImage(net_name), method="browser")
+```
+##### Fig. S2. sppIDer results of Columbicola drowni_drowni samples
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Codro">*Codro (Species coverage)</button> 
+<div id="Codro" class="collapse">    
+<object data="OUT_speciesDepth_Codro.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Codro.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Codro_2">Codro (Coverage across the genomes)</button> 
+<div id="Codro_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Codro.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Codro.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Codro_3">Codro (Mapping quality)</button> 
+<div id="Codro_3" class="collapse">    
+<object data="OUT_plotMQ_Codro.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Codro.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Memel_11_7_2016_13">Cosp_Memel_11_7_2016_13 (Species coverage)</button> 
+<div id="Cosp_Memel_11_7_2016_13" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Memel_11_7_2016_13.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Memel_11_7_2016_13.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Memel_11_7_2016_13_2">Cosp_Memel_11_7_2016_13 (Coverage across the genomes)</button> 
+<div id="Cosp_Memel_11_7_2016_13_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Memel_11_7_2016_13.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Memel_11_7_2016_13">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Memel_11_7_2016_13_3">Cosp_Memel_11_7_2016_13 (Mapping quality)</button> 
+<div id="Cosp_Memel_11_7_2016_13_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Memel_11_7_2016_13.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Memel_11_7_2016_13.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Memel_11_2_2016_6">Cosp_Memel_11_2_2016_6 (Species coverage)</button> 
+<div id="Cosp_Memel_11_2_2016_6" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Memel_11_2_2016_6.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Memel_11_2_2016_6.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Memel_11_2_2016_6_2">Cosp_Memel_11_2_2016_6 (Coverage across the genomes)</button> 
+<div id="Cosp_Memel_11_2_2016_6_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Memel_11_2_2016_6.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Memel_11_2_2016_6.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Memel_11_2_2016_6_3">Cosp_Memel_11_2_2016_6 (Mapping quality)</button> 
+<div id="Cosp_Memel_11_2_2016_6_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Memel_11_2_2016_6.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Memel_11_2_2016_6.pdf">
+    </embed>
+</object>
+</div>
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+
+# #Columbicola_drowni_drowni
+# library("EBImage")
+# # gc()
+# setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Columbicola_drowni_drowni/")
+# # net_name<-c("Proctophyllodes_lusciniae.png","Trouessartia_trouessarti.png")
+# net_name <- list.files(path= "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Columbicola_drowni_drowni/",pattern = "png$") 
+# display(readImage(net_name), method="browser")
+```
+##### Fig. S3. sppIDer results of Columbicola gymnopeliae samples
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#cogym">cogym (Species coverage)</button> 
+<div id="cogym" class="collapse">    
+<object data="OUT_speciesDepth_cogym.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_cogym.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#cogym_2">cogym (Coverage across the genomes)</button> 
+<div id="cogym_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_cogym.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_cogym.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#cogym_3">cogym (Mapping quality)</button> 
+<div id="cogym_3" class="collapse">    
+<object data="OUT_plotMQ_cogym.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_cogym.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Mecec_11_2_2016_10">*Cosp_Mecec_11_2_2016_10 (Species coverage)</button> 
+<div id="Cosp_Mecec_11_2_2016_10" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Mecec_11_2_2016_10.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Mecec_11_2_2016_10.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Mecec_11_2_2016_10_2">Cosp_Mecec_11_2_2016_10 (Coverage across the genomes)</button> 
+<div id="Cosp_Mecec_11_2_2016_10_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Mecec_11_2_2016_10.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Mecec_11_2_2016_10.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Mecec_11_2_2016_10_3">Cosp_Mecec_11_2_2016_10 (Mapping quality)</button> 
+<div id="Cosp_Mecec_11_2_2016_10_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Mecec_11_2_2016_10.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Mecec_11_2_2016_10.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Mecec_11_2_2016_12">Cosp_Mecec_11_2_2016_12 (Species coverage)</button> 
+<div id="Cosp_Mecec_11_2_2016_12" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Mecec_11_2_2016_12.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Mecec_11_2_2016_12.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Mecec_11_2_2016_12_2">Cosp_Mecec_11_2_2016_12 (Coverage across the genomes)</button> 
+<div id="Cosp_Mecec_11_2_2016_12_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Mecec_11_2_2016_12.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Mecec_11_2_2016_12_6">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Mecec_11_2_2016_12_3">Cosp_Mecec_11_2_2016_12 (Mapping quality)</button> 
+<div id="Cosp_Mecec_11_2_2016_12_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Mecec_11_2_2016_12.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Mecec_11_2_2016_12.pdf">
+    </embed>
+</object>
+</div>
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+# 
+# #Columbicola_gymnopeliae
+# library("EBImage")
+# # gc()
+# setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Columbicola_gymnopeliae/")
+# # net_name<-c("Proctophyllodes_lusciniae.png","Trouessartia_trouessarti.png")
+# net_name <- list.files(path= "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Columbicola_gymnopeliae/",pattern = "png$") 
+# display(readImage(net_name), method="browser")
+```
+
+##### Fig. S4. sppIDer results of Columbicola passerinae 1 samples
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#copas1">*copas1 (Species coverage)</button> 
+<div id="copas1" class="collapse">    
+<object data="OUT_speciesDepth_copas1.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_copas1.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#copas1_2">copas1 (Coverage across the genomes)</button> 
+<div id="copas1_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_copas1.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_copas1.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#copas1_3">copas1 (Mapping quality)</button> 
+<div id="copas1_3" class="collapse">    
+<object data="OUT_plotMQ_copas1.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_copas1.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Coinc_11_2_2016_9">Cosp_Coinc_11_2_2016_9 (Species coverage)</button> 
+<div id="Cosp_Coinc_11_2_2016_9" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Coinc_11_2_2016_9.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Coinc_11_2_2016_9.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Coinc_11_2_2016_9_2">Cosp_Coinc_11_2_2016_9 (Coverage across the genomes)</button> 
+<div id="Cosp_Coinc_11_2_2016_9_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Coinc_11_2_2016_9.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Coinc_11_2_2016_9.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Coinc_11_2_2016_9_3">Cosp_Coinc_11_2_2016_9 (Mapping quality)</button> 
+<div id="Cosp_Coinc_11_2_2016_9_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Coinc_11_2_2016_9.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Coinc_11_2_2016_9.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Comin_11_2_2016_16">Cosp_Comin_11_2_2016_16 (Species coverage)</button> 
+<div id="Cosp_Comin_11_2_2016_16" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Comin_11_2_2016_16.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Comin_11_2_2016_16.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Comin_11_2_2016_16_2">Cosp_Comin_11_2_2016_16 (Coverage across the genomes)</button> 
+<div id="Cosp_Comin_11_2_2016_16_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Comin_11_2_2016_16.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Comin_11_2_2016_16.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Comin_11_2_2016_16_3">Cosp_Comin_11_2_2016_16 (Mapping quality)</button> 
+<div id="Cosp_Comin_11_2_2016_16_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Comin_11_2_2016_16.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Comin_11_2_2016_16.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Comin_11_2_2016_4">Cosp_Comin_11_2_2016_4 (Species coverage)</button> 
+<div id="Cosp_Comin_11_2_2016_4" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Comin_11_2_2016_4.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Comin_11_2_2016_4.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Comin_11_2_2016_4_2">Cosp_Comin_11_2_2016_4 (Coverage across the genomes)</button> 
+<div id="Cosp_Comin_11_2_2016_4_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Comin_11_2_2016_4.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Comin_11_2_2016_4.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Comin_11_2_2016_4_3">Cosp_Comin_11_2_2016_4 (Mapping quality)</button> 
+<div id="Cosp_Comin_11_2_2016_4_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Comin_11_2_2016_4.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Comin_11_2_2016_4.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copas_11_7_2016_8">Cosp_Copas_11_7_2016_8 (Species coverage)</button> 
+<div id="Cosp_Copas_11_7_2016_8" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Copas_11_7_2016_8.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Copas_11_7_2016_8.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copas_11_7_2016_8_2">Cosp_Copas_11_7_2016_8 (Coverage across the genomes)</button> 
+<div id="Cosp_Copas_11_7_2016_8_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Copas_11_7_2016_8.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Copas_11_7_2016_8.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copas_11_7_2016_8_3">Cosp_Copas_11_7_2016_8 (Mapping quality)</button> 
+<div id="Cosp_Copas_11_7_2016_8_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Copas_11_7_2016_8.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Copas_11_7_2016_8.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copas_11_7_2016_12">Cosp_Copas_11_7_2016_12 (Species coverage)</button> 
+<div id="Cosp_Copas_11_7_2016_12" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Copas_11_7_2016_12.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Copas_11_7_2016_12.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copas_11_7_2016_12_2">Cosp_Copas_11_7_2016_12 (Coverage across the genomes)</button> 
+<div id="Cosp_Copas_11_7_2016_12_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Copas_11_7_2016_12.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Copas_11_7_2016_12.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copas_11_7_2016_12_3">Cosp_Copas_11_7_2016_12 (Mapping quality)</button> 
+<div id="Cosp_Copas_11_7_2016_12_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Copas_11_7_2016_12.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Copas_11_7_2016_12.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copas_11_7_2016_14">Cosp_Copas_11_7_2016_14 (Species coverage)</button> 
+<div id="Cosp_Copas_11_7_2016_14" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Copas_11_7_2016_14.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Copas_11_7_2016_14.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copas_11_7_2016_14_2">Cosp_Copas_11_7_2016_14 (Coverage across the genomes)</button> 
+<div id="Cosp_Copas_11_7_2016_14_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Copas_11_7_2016_14.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Copas_11_7_2016_14.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copas_11_7_2016_14_3">Cosp_Copas_11_7_2016_14 (Mapping quality)</button> 
+<div id="Cosp_Copas_11_7_2016_14_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Copas_11_7_2016_14.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Copas_11_7_2016_14.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copas_11_7_2016_15">Cosp_Copas_11_7_2016_15 (Species coverage)</button> 
+<div id="Cosp_Copas_11_7_2016_15" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Copas_11_7_2016_15.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Copas_11_7_2016_15.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copas_11_7_2016_15_2">Cosp_Copas_11_7_2016_15 (Coverage across the genomes)</button> 
+<div id="Cosp_Copas_11_7_2016_15_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Copas_11_7_2016_15.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Copas_11_7_2016_15.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copas_11_7_2016_15_3">Cosp_Copas_11_7_2016_15 (Mapping quality)</button> 
+<div id="Cosp_Copas_11_7_2016_15_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Copas_11_7_2016_15.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Copas_11_7_2016_15.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copic_11_2_2016_1">Cosp_Copic_11_2_2016_1 (Species coverage)</button> 
+<div id="Cosp_Copic_11_2_2016_1" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Copic_11_2_2016_1.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Copic_11_2_2016_1.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copic_11_2_2016_1_2">Cosp_Copic_11_2_2016_1 (Coverage across the genomes)</button> 
+<div id="Cosp_Copic_11_2_2016_1_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Copic_11_2_2016_1.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Copic_11_2_2016_1.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copic_11_2_2016_1_3">Cosp_Copic_11_2_2016_1 (Mapping quality)</button> 
+<div id="Cosp_Copic_11_2_2016_1_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Copic_11_2_2016_1.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Copic_11_2_2016_1.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copic_11_2_2016_3">Cosp_Copic_11_2_2016_3 (Species coverage)</button>
+<div id="Cosp_Copic_11_2_2016_3" class="collapse">
+<object data="OUT_speciesDepth_Cosp_Copic_11_2_2016_3.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Copic_11_2_2016_3.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copic_11_2_2016_3_2">Cosp_Copic_11_2_2016_3 (Coverage across the genomes)</button>
+<div id="Cosp_Copic_11_2_2016_3_2" class="collapse">
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Copic_11_2_2016_3.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Copic_11_2_2016_3.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Copic_11_2_2016_3_3">Cosp_Copic_11_2_2016_3 (Mapping quality)</button>
+<div id="Cosp_Copic_11_2_2016_3_3" class="collapse">
+<object data="OUT_plotMQ_Cosp_Copic_11_2_2016_3.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Copic_11_2_2016_3.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cosqu_11_7_2016_1">Cosp_Cosqu_11_7_2016_1 (Species coverage)</button>
+<div id="Cosp_Cosqu_11_7_2016_1" class="collapse">
+<object data="OUT_speciesDepth_Cosp_Cosqu_11_7_2016_1.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Cosqu_11_7_2016_1.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cosqu_11_7_2016_1_2">Cosp_Cosqu_11_7_2016_1 (Coverage across the genomes)</button>
+<div id="Cosp_Cosqu_11_7_2016_1_2" class="collapse">
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Cosqu_11_7_2016_1.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Cosqu_11_7_2016_1.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cosqu_11_7_2016_1_3">Cosp_Cosqu_11_7_2016_1 (Mapping quality)</button>
+<div id="Cosp_Cosqu_11_7_2016_1_3" class="collapse">
+<object data="OUT_plotMQ_Cosp_Cosqu_11_7_2016_1.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Cosqu_11_7_2016_1.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cosqu_11_7_2016_5">Cosp_Cosqu_11_7_2016_5 (Species coverage)</button>
+<div id="Cosp_Cosqu_11_7_2016_5" class="collapse">
+<object data="OUT_speciesDepth_Cosp_Cosqu_11_7_2016_5.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Cosqu_11_7_2016_5.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cosqu_11_7_2016_5_2">Cosp_Cosqu_11_7_2016_5 (Coverage across the genomes)</button>
+<div id="Cosp_Cosqu_11_7_2016_5_2" class="collapse">
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Cosqu_11_7_2016_5.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Cosqu_11_7_2016_5.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cosqu_11_7_2016_5_3">Cosp_Cosqu_11_7_2016_5 (Mapping quality)</button>
+<div id="Cosp_Cosqu_11_7_2016_5_3" class="collapse">
+<object data="OUT_plotMQ_Cosp_Cosqu_11_7_2016_5.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Cosqu_11_7_2016_5.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cotal_11_2_2016_15">Cosp_Cotal_11_2_2016_15 (Species coverage)</button> 
+<div id="Cosp_Cotal_11_2_2016_15" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Cotal_11_2_2016_15.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Cotal_11_2_2016_15.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cotal_11_2_2016_15_2">Cosp_Cotal_11_2_2016_15 (Coverage across the genomes)</button> 
+<div id="Cosp_Cotal_11_2_2016_15_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Cotal_11_2_2016_15.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Cotal_11_2_2016_15.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cotal_11_2_2016_15_3">Cosp_Cotal_11_2_2016_15 (Mapping quality)</button> 
+<div id="Cosp_Cotal_11_2_2016_15_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Cotal_11_2_2016_15.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Cotal_11_2_2016_15.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cotal_11_7_2016_2">Cosp_Cotal_11_7_2016_2 (Species coverage)</button> 
+<div id="Cosp_Cotal_11_7_2016_2" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Cotal_11_7_2016_2.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Cotal_11_7_2016_2.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cotal_11_7_2016_2_2">Cosp_Cotal_11_7_2016_2 (Coverage across the genomes)</button> 
+<div id="Cosp_Cotal_11_7_2016_2_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Cotal_11_7_2016_2.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Cotal_11_7_2016_2.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cotal_11_7_2016_2_3">Cosp_Cotal_11_7_2016_2 (Mapping quality)</button> 
+<div id="Cosp_Cotal_11_7_2016_2_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Cotal_11_7_2016_2.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Cotal_11_7_2016_2.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Urcam_11_7_2016_6">Cosp_Urcam_11_7_2016_6 (Species coverage)</button> 
+<div id="Cosp_Urcam_11_7_2016_6" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Urcam_11_7_2016_6.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Urcam_11_7_2016_6.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Urcam_11_7_2016_6_2">Cosp_Urcam_11_7_2016_6 (Coverage across the genomes)</button> 
+<div id="Cosp_Urcam_11_7_2016_6_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Urcam_11_7_2016_6.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Urcam_11_7_2016_6.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Urcam_11_7_2016_6_3">Cosp_Urcam_11_7_2016_6 (Mapping quality)</button> 
+<div id="Cosp_Urcam_11_7_2016_6_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Urcam_11_7_2016_6.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Urcam_11_7_2016_6.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Urcam_11_7_2016_4">Cosp_Urcam_11_7_2016_4 (Species coverage)</button> 
+<div id="Cosp_Urcam_11_7_2016_4" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Urcam_11_7_2016_4.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Urcam_11_7_2016_4.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Urcam_11_7_2016_4_2">Cosp_Urcam_11_7_2016_4 (Coverage across the genomes)</button> 
+<div id="Cosp_Urcam_11_7_2016_4_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Urcam_11_7_2016_4.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Urcam_11_7_2016_4.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Urcam_11_7_2016_4_3">Cosp_Urcam_11_7_2016_4 (Mapping quality)</button> 
+<div id="Cosp_Urcam_11_7_2016_4_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Urcam_11_7_2016_4.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Urcam_11_7_2016_4.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+# 
+# #Columbicola_passerinae_1
+# library("EBImage")
+# # gc()
+# setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Columbicola_passerinae_1/")
+# # net_name<-c("Proctophyllodes_lusciniae.png","Trouessartia_trouessarti.png")
+# net_name <- list.files(path= "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Columbicola_passerinae_1/",pattern = "png$") 
+# display(readImage(net_name), method="browser")
+```
+##### Fig. S5. sppIDer results of Columbicola passerinae 2 samples
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Copas2">*Copas2 (Species coverage)</button> 
+<div id="Copas2" class="collapse">    
+<object data="OUT_speciesDepth_Copas2.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Copas2.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Copas2_2">Copas2 (Coverage across the genomes)</button> 
+<div id="Copas2_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Copas2.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Copas2.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Copas2_3">Copas2 (Mapping quality)</button> 
+<div id="Copas2_3" class="collapse">    
+<object data="OUT_plotMQ_Copas2.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Copas2.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Clpre_11_2_2016_14">Cosp_Clpre_11_2_2016_14 (Species coverage)</button> 
+<div id="Cosp_Clpre_11_2_2016_14" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Clpre_11_2_2016_14.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Clpre_11_2_2016_14.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Clpre_11_2_2016_14_2">Cosp_Clpre_11_2_2016_14 (Coverage across the genomes)</button> 
+<div id="Cosp_Clpre_11_2_2016_14_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Clpre_11_2_2016_14.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Clpre_11_2_2016_14.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Clpre_11_2_2016_14_3">Cosp_Clpre_11_2_2016_14 (Mapping quality)</button> 
+<div id="Cosp_Clpre_11_2_2016_14_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Clpre_11_2_2016_14.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Clpre_11_2_2016_14.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Clpre_11_7_2016_3">Cosp_Clpre_11_7_2016_3 (Species coverage)</button> 
+<div id="Cosp_Clpre_11_7_2016_3" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Clpre_11_7_2016_3.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Clpre_11_7_2016_3.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Clpre_11_7_2016_3_2">Cosp_Clpre_11_7_2016_3 (Coverage across the genomes)</button> 
+<div id="Cosp_Clpre_11_7_2016_3_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Clpre_11_7_2016_3.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Clpre_11_7_2016_3.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Clpre_11_7_2016_3_3">Cosp_Clpre_11_7_2016_3 (Mapping quality)</button> 
+<div id="Cosp_Clpre_11_7_2016_3_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Clpre_11_7_2016_3.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Clpre_11_7_2016_3.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Clpre_11_7_2016_9">Cosp_Clpre_11_7_2016_9 (Species coverage)</button> 
+<div id="Cosp_Clpre_11_7_2016_9" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Clpre_11_7_2016_9.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Clpre_11_7_2016_9.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Clpre_11_7_2016_9_2">Cosp_Clpre_11_7_2016_9 (Coverage across the genomes)</button> 
+<div id="Cosp_Clpre_11_7_2016_9_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Clpre_11_7_2016_9.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Clpre_11_7_2016_9.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Clpre_11_7_2016_9_3">Cosp_Clpre_11_7_2016_9 (Mapping quality)</button> 
+<div id="Cosp_Clpre_11_7_2016_9_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Clpre_11_7_2016_9.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Clpre_11_7_2016_9.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Clpre_11_7_2016_11">Cosp_Clpre_11_7_2016_11 (Species coverage)</button> 
+<div id="Cosp_Clpre_11_7_2016_11" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Clpre_11_7_2016_11.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Clpre_11_7_2016_11.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Clpre_11_7_2016_11_2">Cosp_Clpre_11_7_2016_11 (Coverage across the genomes)</button> 
+<div id="Cosp_Clpre_11_7_2016_11_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Clpre_11_7_2016_11.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Clpre_11_7_2016_11.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Clpre_11_7_2016_11_3">Cosp_Clpre_11_7_2016_11 (Mapping quality)</button> 
+<div id="Cosp_Clpre_11_7_2016_11_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Clpre_11_7_2016_11.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Clpre_11_7_2016_11.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cobuc_11_2_2016_13">Cosp_Cobuc_11_2_2016_13 (Species coverage)</button> 
+<div id="Cosp_Cobuc_11_2_2016_13" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Cobuc_11_2_2016_13.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Cobuc_11_2_2016_13.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cobuc_11_2_2016_13_2">Cosp_Cobuc_11_2_2016_13 (Coverage across the genomes)</button> 
+<div id="Cosp_Cobuc_11_2_2016_13_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Cobuc_11_2_2016_13.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Cobuc_11_2_2016_13.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cobuc_11_2_2016_13_3">Cosp_Cobuc_11_2_2016_13 (Mapping quality)</button> 
+<div id="Cosp_Cobuc_11_2_2016_13_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Cobuc_11_2_2016_13.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Cobuc_11_2_2016_13.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cobuc_11_2_2016_2">Cosp_Cobuc_11_2_2016_2 (Species coverage)</button> 
+<div id="Cosp_Cobuc_11_2_2016_2" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Cobuc_11_2_2016_2.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Cobuc_11_2_2016_2.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cobuc_11_2_2016_2_2">Cosp_Cobuc_11_2_2016_2 (Coverage across the genomes)</button> 
+<div id="Cosp_Cobuc_11_2_2016_2_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Cobuc_11_2_2016_2.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Cobuc_11_2_2016_2.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cobuc_11_2_2016_2_3">Cosp_Cobuc_11_2_2016_2 (Mapping quality)</button> 
+<div id="Cosp_Cobuc_11_2_2016_2_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Cobuc_11_2_2016_2.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Cobuc_11_2_2016_2.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cocru_11_2_2016_11">Cosp_Cocru_11_2_2016_11 (Species coverage)</button> 
+<div id="Cosp_Cocru_11_2_2016_11" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Cocru_11_2_2016_11.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Cocru_11_2_2016_11.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cocru_11_2_2016_11_2">Cosp_Cocru_11_2_2016_11 (Coverage across the genomes)</button> 
+<div id="Cosp_Cocru_11_2_2016_11_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Cocru_11_2_2016_11.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Cocru_11_2_2016_11.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cocru_11_2_2016_11_3">Cosp_Cocru_11_2_2016_11 (Mapping quality)</button> 
+<div id="Cosp_Cocru_11_2_2016_11_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Cocru_11_2_2016_11.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Cocru_11_2_2016_11.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cocru_11_7_2016_16">Cosp_Cocru_11_7_2016_16 (Species coverage)</button> 
+<div id="Cosp_Cocru_11_7_2016_16" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Cocru_11_7_2016_16.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Cocru_11_7_2016_16.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cocru_11_7_2016_16_2">Cosp_Cocru_11_7_2016_16 (Coverage across the genomes)</button> 
+<div id="Cosp_Cocru_11_7_2016_16_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Cocru_11_7_2016_16.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Cocru_11_7_2016_16.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cocru_11_7_2016_16_3">Cosp_Cocru_11_7_2016_16 (Mapping quality)</button> 
+<div id="Cosp_Cocru_11_7_2016_16_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Cocru_11_7_2016_16.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Cocru_11_7_2016_16.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cotal_11_7_2016_10">Cosp_Cotal_11_7_2016_10 (Species coverage)</button> 
+<div id="Cosp_Cotal_11_7_2016_10" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Cotal_11_7_2016_10.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Cotal_11_7_2016_10.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cotal_11_7_2016_10_2">Cosp_Cotal_11_7_2016_10 (Coverage across the genomes)</button> 
+<div id="Cosp_Cotal_11_7_2016_10_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Cotal_11_7_2016_10.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Cotal_11_7_2016_10.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cotal_11_7_2016_10_3">Cosp_Cotal_11_7_2016_10 (Mapping quality)</button> 
+<div id="Cosp_Cotal_11_7_2016_10_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Cotal_11_7_2016_10.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Cotal_11_7_2016_10.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cotal_11_2_2016_8">Cosp_Cotal_11_2_2016_8 (Species coverage)</button> 
+<div id="Cosp_Cotal_11_2_2016_8" class="collapse">    
+<object data="OUT_speciesDepth_Cosp_Cotal_11_2_2016_8.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Cosp_Cotal_11_2_2016_8.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cotal_11_2_2016_8_2">Cosp_Cotal_11_2_2016_8 (Coverage across the genomes)</button> 
+<div id="Cosp_Cotal_11_2_2016_8_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Cosp_Cotal_11_2_2016_8.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Cosp_Cotal_11_2_2016_8.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Cosp_Cotal_11_2_2016_8_3">Cosp_Cotal_11_2_2016_8 (Mapping quality)</button> 
+<div id="Cosp_Cotal_11_2_2016_8_3" class="collapse">    
+<object data="OUT_plotMQ_Cosp_Cotal_11_2_2016_8.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Cosp_Cotal_11_2_2016_8.pdf">
+    </embed>
+</object>
+</div>
+
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+# 
+# #Columbicola_passerinae_2
+# library("EBImage")
+# # gc()
+# setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Columbicola_passerinae_2/")
+# # net_name<-c("Proctophyllodes_lusciniae.png","Trouessartia_trouessarti.png")
+# net_name <- list.files(path= "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Columbicola_passerinae_2/",pattern = "png$") 
+# display(readImage(net_name), method="browser")
+```
+
+
+#### Physconelloides
+##### Fig. S6. sppIDer results of Physconelloides eurysema 1 samples
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_14_2016_8">*Pheur_Copas_3_14_2016_8 (Species coverage)</button> 
+<div id="Pheur_Copas_3_14_2016_8" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Copas_3_14_2016_8.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Copas_3_14_2016_8.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_14_2016_8_2">Pheur_Copas_3_14_2016_8 (Coverage across the genomes)</button> 
+<div id="Pheur_Copas_3_14_2016_8_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_14_2016_8.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_14_2016_8.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_14_2016_8_3">Pheur_Copas_3_14_2016_8 (Mapping quality)</button> 
+<div id="Pheur_Copas_3_14_2016_8_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Copas_3_14_2016_8.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Copas_3_14_2016_8.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_16_2016_6">Pheur_Copas_3_16_2016_6 (Species coverage)</button> 
+<div id="Pheur_Copas_3_16_2016_6" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Copas_3_16_2016_6.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Copas_3_16_2016_6.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_16_2016_6_2">Pheur_Copas_3_16_2016_6 (Coverage across the genomes)</button> 
+<div id="Pheur_Copas_3_16_2016_6_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_16_2016_6.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_16_2016_6.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_16_2016_6_3">Pheur_Copas_3_16_2016_6 (Mapping quality)</button> 
+<div id="Pheur_Copas_3_16_2016_6_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Copas_3_16_2016_6.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Copas_3_16_2016_6.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Comin_6_15_2015_10">Pheur_Comin_6_15_2015_10 (Species coverage)</button> 
+<div id="Pheur_Comin_6_15_2015_10" class="collapse">    
+<object data="OUT_speciesDepth_Pheur.Comin.6.15.2015.10.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur.Comin.6.15.2015.10.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Comin_6_15_2015_10_2">Pheur_Comin_6_15_2015_10 (Coverage across the genomes)</button> 
+<div id="Pheur_Comin_6_15_2015_10_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur.Comin.6.15.2015.10.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur.Comin.6.15.2015.10.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Comin_6_15_2015_10_3">Pheur_Comin_6_15_2015_10 (Mapping quality)</button> 
+<div id="Pheur_Comin_6_15_2015_10_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur.Comin.6.15.2015.10.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur.Comin.6.15.2015.10.pdf">
+    </embed>
+</object>
+</div>
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+
+#Physconelloides_eurysema_1
+# library("EBImage")
+# # gc()
+# setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_eurysema_1/")
+# # net_name<-c("Proctophyllodes_lusciniae.png","Trouessartia_trouessarti.png")
+# net_name <- list.files(path= "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_eurysema_1/",pattern = "png$") 
+# display(readImage(net_name), method="browser")
+```
+##### Fig. S7. sppIDer results of Physconelloides eurysema 2 samples
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cosqu_3_14_2016_1">*Pheur_Cosqu_3_14_2016_1 (Species coverage)</button> 
+<div id="Pheur_Cosqu_3_14_2016_1" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Cosqu_3_14_2016_1.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Cosqu_3_14_2016_1.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cosqu_3_14_2016_1_2">Pheur_Cosqu_3_14_2016_1 (Coverage across the genomes)</button> 
+<div id="Pheur_Cosqu_3_14_2016_1_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Cosqu_3_14_2016_1.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Cosqu_3_14_2016_1.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cosqu_3_14_2016_1_3">Pheur_Cosqu_3_14_2016_1 (Mapping quality)</button> 
+<div id="Pheur_Cosqu_3_14_2016_1_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Cosqu_3_14_2016_1.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Cosqu_3_14_2016_1.10.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cosqu_3_14_2016_12">Pheur_Cosqu_3_14_2016_12 (Species coverage)</button> 
+<div id="Pheur_Cosqu_3_14_2016_12" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Cosqu_3_14_2016_12.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Cosqu_3_14_2016_12.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cosqu_3_14_2016_12_2">Pheur_Cosqu_3_14_2016_12 (Coverage across the genomes)</button> 
+<div id="Pheur_Cosqu_3_14_2016_12_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Cosqu_3_14_2016_12.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Cosqu_3_14_2016_12.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cosqu_3_14_2016_12_3">Pheur_Cosqu_3_14_2016_12 (Mapping quality)</button> 
+<div id="Pheur_Cosqu_3_14_2016_12_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Cosqu_3_14_2016_12.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Cosqu_3_14_2016_12.pdf">
+    </embed>
+</object>
+</div>
+
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+# 
+# #Physconelloides_eurysema_2
+# library("EBImage")
+# # gc()
+# setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_eurysema_2/")
+# # net_name<-c("Proctophyllodes_lusciniae.png","Trouessartia_trouessarti.png")
+# net_name <- list.files(path= "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_eurysema_2/",pattern = "png$") 
+# display(readImage(net_name), method="browser")
+```
+##### Fig. S8. sppIDer results of Physconelloides eurysema 3 samples
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Clpre_5_26_2015_6">Pheur2_Clpre_5_26_2015_6 (Species coverage)</button> 
+<div id="Pheur2_Clpre_5_26_2015_6" class="collapse">    
+<object data="OUT_speciesDepth_Pheur2_Clpre_5_26_2015_6.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur2_Clpre_5_26_2015_6.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Clpre_5_26_2015_6_2">Pheur2_Clpre_5_26_2015_6 (Coverage across the genomes)</button> 
+<div id="Pheur2_Clpre_5_26_2015_6_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur2_Clpre_5_26_2015_6.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur2_Clpre_5_26_2015_6.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Clpre_5_26_2015_6_3">Pheur2_Clpre_5_26_2015_6 (Mapping quality)</button> 
+<div id="Pheur2_Clpre_5_26_2015_6_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur2_Clpre_5_26_2015_6.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur2_Clpre_5_26_2015_6.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Clpre_6_15_2015_8">Pheur_Clpre_6_15_2015_8 (Species coverage)</button> 
+<div id="Pheur_Clpre_6_15_2015_8" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Clpre_6_15_2015_8.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Clpre_6_15_2015_8.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Clpre_6_15_2015_8_2">Pheur_Clpre_6_15_2015_8 (Coverage across the genomes)</button> 
+<div id="Pheur_Clpre_6_15_2015_8_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Clpre_6_15_2015_8.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Clpre_6_15_2015_8.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Clpre_6_15_2015_8_3">Pheur_Clpre_6_15_2015_8 (Mapping quality)</button> 
+<div id="Pheur_Clpre_6_15_2015_8_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Clpre_6_15_2015_8.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Clpre_6_15_2015_8.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_3_14_2016_2">Pheur_Cotal_3_14_2016_2 (Species coverage)</button> 
+<div id="Pheur_Cotal_3_14_2016_2" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Cotal_3_14_2016_2.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Cotal_3_14_2016_2.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_3_14_2016_2_2">Pheur_Cotal_3_14_2016_2 (Coverage across the genomes)</button> 
+<div id="Pheur_Cotal_3_14_2016_2_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Cotal_3_14_2016_2.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Cotal_3_14_2016_2.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_3_14_2016_2_3">Pheur_Cotal_3_14_2016_2 (Mapping quality)</button> 
+<div id="Pheur_Cotal_3_14_2016_2_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Cotal_3_14_2016_2.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Cotal_3_14_2016_2.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_14_2016_4">Pheur_Copas_3_14_2016_4 (Species coverage)</button> 
+<div id="Pheur_Copas_3_14_2016_4" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Copas_3_14_2016_4.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Copas_3_14_2016_4.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_14_2016_4_2">Pheur_Copas_3_14_2016_4 (Coverage across the genomes)</button> 
+<div id="Pheur_Copas_3_14_2016_4_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_14_2016_4.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_14_2016_4.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_14_2016_4_3">Pheur_Copas_3_14_2016_4 (Mapping quality)</button> 
+<div id="Pheur_Copas_3_14_2016_4_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Copas_3_14_2016_4.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Copas_3_14_2016_4.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Clpre_3_14_2016_5">Pheur2_Clpre_3_14_2016_5 (Species coverage)</button> 
+<div id="Pheur2_Clpre_3_14_2016_5" class="collapse">    
+<object data="OUT_speciesDepth_Pheur2_Clpre_3_14_2016_5.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur2_Clpre_3_14_2016_5.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Clpre_3_14_2016_5_2">Pheur2_Clpre_3_14_2016_5 (Coverage across the genomes)</button> 
+<div id="Pheur2_Clpre_3_14_2016_5_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur2_Clpre_3_14_2016_5.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur2_Clpre_3_14_2016_5.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Clpre_3_14_2016_5_3">Pheur2_Clpre_3_14_2016_5 (Mapping quality)</button> 
+<div id="Pheur2_Clpre_3_14_2016_5_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur2_Clpre_3_14_2016_5.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur2_Clpre_3_14_2016_5.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_3_14_2016_6">Pheur_Cotal_3_14_2016_6 (Species coverage)</button> 
+<div id="Pheur_Cotal_3_14_2016_6" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Cotal_3_14_2016_6.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Cotal_3_14_2016_6.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_3_14_2016_6_2">Pheur_Cotal_3_14_2016_6 (Coverage across the genomes)</button> 
+<div id="Pheur_Cotal_3_14_2016_6_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Cotal_3_14_2016_6.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Cotal_3_14_2016_6.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_3_14_2016_6_3">Pheur_Cotal_3_14_2016_6 (Mapping quality)</button> 
+<div id="Pheur_Cotal_3_14_2016_6_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Cotal_3_14_2016_6.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Cotal_3_14_2016_6.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_14_2016_7">Pheur_Copas_3_14_2016_7 (Species coverage)</button> 
+<div id="Pheur_Copas_3_14_2016_7" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Copas_3_14_2016_7.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Copas_3_14_2016_7.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_14_2016_7_2">Pheur_Copas_3_14_2016_7 (Coverage across the genomes)</button> 
+<div id="Pheur_Copas_3_14_2016_7_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_14_2016_7.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_14_2016_7.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_14_2016_7_3">Pheur_Copas_3_14_2016_7 (Mapping quality)</button> 
+<div id="Pheur_Copas_3_14_2016_7_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Copas_3_14_2016_7.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Copas_3_14_2016_7.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur1_Comin_3_14_2016_9">Pheur1_Comin_3_14_2016_9 (Species coverage)</button> 
+<div id="Pheur1_Comin_3_14_2016_9" class="collapse">    
+<object data="OUT_speciesDepth_Pheur1_Comin_3_14_2016_9.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur1_Comin_3_14_2016_9.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur1_Comin_3_14_2016_9_2">Pheur1_Comin_3_14_2016_9 (Coverage across the genomes)</button> 
+<div id="Pheur1_Comin_3_14_2016_9_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur1_Comin_3_14_2016_9.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur1_Comin_3_14_2016_9.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur1_Comin_3_14_2016_9_3">Pheur1_Comin_3_14_2016_9 (Mapping quality)</button> 
+<div id="Pheur1_Comin_3_14_2016_9_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur1_Comin_3_14_2016_9.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur1_Comin_3_14_2016_9.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_14_2016_10">Pheur_Copas_3_14_2016_10 (Species coverage)</button> 
+<div id="Pheur_Copas_3_14_2016_10" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Copas_3_14_2016_10.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Copas_3_14_2016_10.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_14_2016_10_2">Pheur_Copas_3_14_2016_10 (Coverage across the genomes)</button> 
+<div id="Pheur_Copas_3_14_2016_10_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_14_2016_10.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_14_2016_10.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_14_2016_10_3">Pheur_Copas_3_14_2016_10 (Mapping quality)</button> 
+<div id="Pheur_Copas_3_14_2016_10_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Copas_3_14_2016_10.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Copas_3_14_2016_10.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Clpre_3_14_2016_11">*Pheur2_Clpre_3_14_2016_11 (Species coverage)</button> 
+<div id="Pheur2_Clpre_3_14_2016_11" class="collapse">    
+<object data="OUT_speciesDepth_Pheur2_Clpre_3_14_2016_11.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur2_Clpre_3_14_2016_11.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Clpre_3_14_2016_11_2">Pheur2_Clpre_3_14_2016_11 (Coverage across the genomes)</button> 
+<div id="Pheur2_Clpre_3_14_2016_11_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur2_Clpre_3_14_2016_11.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur2_Clpre_3_14_2016_11.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Clpre_3_14_2016_11_3">Pheur2_Clpre_3_14_2016_11 (Mapping quality)</button> 
+<div id="Pheur2_Clpre_3_14_2016_11_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur2_Clpre_3_14_2016_11.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur2_Clpre_3_14_2016_11.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_16_2016_1">Pheur_Copas_3_16_2016_1 (Species coverage)</button> 
+<div id="Pheur_Copas_3_16_2016_1" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Copas_3_16_2016_1.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Copas_3_16_2016_1.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_16_2016_1_2">Pheur_Copas_3_16_2016_1 (Coverage across the genomes)</button> 
+<div id="Pheur_Copas_3_16_2016_1_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_16_2016_1.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_16_2016_1.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_16_2016_1_3">Pheur_Copas_3_16_2016_1 (Mapping quality)</button> 
+<div id="Pheur_Copas_3_16_2016_1_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Copas_3_16_2016_1.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Copas_3_16_2016_1.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_3_16_2016_3">Pheur_Cotal_3_16_2016_3 (Species coverage)</button> 
+<div id="Pheur_Cotal_3_16_2016_3" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Cotal_3_16_2016_3.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Cotal_3_16_2016_3.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_3_16_2016_3_2">Pheur_Cotal_3_16_2016_3 (Coverage across the genomes)</button> 
+<div id="Pheur_Cotal_3_16_2016_3_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Cotal_3_16_2016_3.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Cotal_3_16_2016_3.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_3_16_2016_3_3">Pheur_Cotal_3_16_2016_3 (Mapping quality)</button> 
+<div id="Pheur_Cotal_3_16_2016_3_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Cotal_3_16_2016_3.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Cotal_3_16_2016_3.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Cobuc_3_16_2016_4">Pheur2_Cobuc_3_16_2016_4 (Species coverage)</button> 
+<div id="Pheur2_Cobuc_3_16_2016_4" class="collapse">    
+<object data="OUT_speciesDepth_Pheur2_Cobuc_3_16_2016_4.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur2_Cobuc_3_16_2016_4.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Cobuc_3_16_2016_4_2">Pheur2_Cobuc_3_16_2016_4 (Coverage across the genomes)</button> 
+<div id="Pheur2_Cobuc_3_16_2016_4_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur2_Cobuc_3_16_2016_4.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur2_Cobuc_3_16_2016_4.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Cobuc_3_16_2016_4_3">Pheur2_Cobuc_3_16_2016_4 (Mapping quality)</button> 
+<div id="Pheur2_Cobuc_3_16_2016_4_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur2_Cobuc_3_16_2016_4.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur2_Cobuc_3_16_2016_4.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Clpre_3_16_2016_5">Pheur2_Clpre_3_16_2016_5 (Species coverage)</button> 
+<div id="Pheur2_Clpre_3_16_2016_5" class="collapse">    
+<object data="OUT_speciesDepth_Pheur2_Clpre_3_16_2016_5.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur2_Clpre_3_16_2016_5.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Clpre_3_16_2016_5_2">Pheur2_Clpre_3_16_2016_5 (Coverage across the genomes)</button> 
+<div id="Pheur2_Clpre_3_16_2016_5_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur2_Clpre_3_16_2016_5.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur2_Clpre_3_16_2016_5.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Clpre_3_16_2016_5_3">Pheur2_Clpre_3_16_2016_5 (Mapping quality)</button> 
+<div id="Pheur2_Clpre_3_16_2016_5_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur2_Clpre_3_16_2016_5.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur2_Clpre_3_16_2016_5.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_16_2016_7">Pheur_Copas_3_16_2016_7 (Species coverage)</button> 
+<div id="Pheur_Copas_3_16_2016_7" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Copas_3_16_2016_7.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Copas_3_16_2016_7.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_16_2016_7_2">Pheur_Copas_3_16_2016_7 (Coverage across the genomes)</button> 
+<div id="Pheur_Copas_3_16_2016_7_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_16_2016_7.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Copas_3_16_2016_7.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Copas_3_16_2016_7_3">Pheur_Copas_3_16_2016_7 (Mapping quality)</button> 
+<div id="Pheur_Copas_3_16_2016_7_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Copas_3_16_2016_7.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Copas_3_16_2016_7.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Cocru_3_16_2016_9">Pheur2_Cocru_3_16_2016_9 (Species coverage)</button> 
+<div id="Pheur2_Cocru_3_16_2016_9" class="collapse">    
+<object data="OUT_speciesDepth_Pheur2_Cocru_3_16_2016_9.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur2_Cocru_3_16_2016_9.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Cocru_3_16_2016_9_2">Pheur2_Cocru_3_16_2016_9 (Coverage across the genomes)</button> 
+<div id="Pheur2_Cocru_3_16_2016_9_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur2_Cocru_3_16_2016_9.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur2_Cocru_3_16_2016_9.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur2_Cocru_3_16_2016_9_3">Pheur2_Cocru_3_16_2016_9 (Mapping quality)</button> 
+<div id="Pheur2_Cocru_3_16_2016_9_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur2_Cocru_3_16_2016_9.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur2_Cocru_3_16_2016_9.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_3_16_2016_12">Pheur_Cotal_3_16_2016_12 (Species coverage)</button> 
+<div id="Pheur_Cotal_3_16_2016_12" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Cotal_3_16_2016_12.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Cotal_3_16_2016_12.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_3_16_2016_12_2">Pheur_Cotal_3_16_2016_12 (Coverage across the genomes)</button> 
+<div id="Pheur_Cotal_3_16_2016_12_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Cotal_3_16_2016_12.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Cotal_3_16_2016_12.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_3_16_2016_12_3">Pheur_Cotal_3_16_2016_12 (Mapping quality)</button> 
+<div id="Pheur_Cotal_3_16_2016_12_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Cotal_3_16_2016_12.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Cotal_3_16_2016_12.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cobuc_6_15_2015_1">Pheur_Cobuc_6_15_2015_1 (Species coverage)</button> 
+<div id="Pheur_Cobuc_6_15_2015_1" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Cobuc_6_15_2015_1.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Cobuc_6_15_2015_1.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cobuc_6_15_2015_1_2">Pheur_Cobuc_6_15_2015_1 (Coverage across the genomes)</button> 
+<div id="Pheur_Cobuc_6_15_2015_1_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Cobuc_6_15_2015_1.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Cobuc_6_15_2015_1.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cobuc_6_15_2015_1_3">Pheur_Cobuc_6_15_2015_1 (Mapping quality)</button> 
+<div id="Pheur_Cobuc_6_15_2015_1_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Cobuc_6_15_2015_1.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Cobuc_6_15_2015_1.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cocru_6_15_2015_2">Pheur_Cocru_6_15_2015_2 (Species coverage)</button> 
+<div id="Pheur_Cocru_6_15_2015_2" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Cocru_6_15_2015_2.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Cocru_6_15_2015_2.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cocru_6_15_2015_2_2">Pheur_Cocru_6_15_2015_2 (Coverage across the genomes)</button> 
+<div id="Pheur_Cocru_6_15_2015_2_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Cocru_6_15_2015_2.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Cocru_6_15_2015_2.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cocru_6_15_2015_2_3">Pheur_Cocru_6_15_2015_2 (Mapping quality)</button> 
+<div id="Pheur_Cocru_6_15_2015_2_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Cocru_6_15_2015_2.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Cocru_6_15_2015_2.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+<br>
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_6_15_2015_4">Pheur_Cotal_6_15_2015_4 (Species coverage)</button> 
+<div id="Pheur_Cotal_6_15_2015_4" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Cotal_6_15_2015_4.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Cotal_6_15_2015_4.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_6_15_2015_4_2">Pheur_Cotal_6_15_2015_4 (Coverage across the genomes)</button> 
+<div id="Pheur_Cotal_6_15_2015_4_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Cotal_6_15_2015_4.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Cotal_6_15_2015_4.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Cotal_6_15_2015_4_3">Pheur_Cotal_6_15_2015_4 (Mapping quality)</button> 
+<div id="Pheur_Cotal_6_15_2015_4_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Cotal_6_15_2015_4.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Cotal_6_15_2015_4.pdf">
+    </embed>
+</object>
+</div>
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+
+# #Physconelloides_eurysema_3
+# library("EBImage")
+# # gc()
+# setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_eurysema_3/")
+# # net_name<-c("Proctophyllodes_lusciniae.png","Trouessartia_trouessarti.png")
+# net_name <- list.files(path= "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_eurysema_3/",pattern = "png$") 
+# display(readImage(net_name), method="browser")
+```
+##### Fig. S9. sppIDer results of Physconelloides eurysema 4 samples
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Coinc_6_15_2015_7">*Pheur_Coinc_6_15_2015_7 (Species coverage)</button> 
+<div id="Pheur_Coinc_6_15_2015_7" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Coinc_6_15_2015_7.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Coinc_6_15_2015_7.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Coinc_6_15_2015_7_2">Pheur_Coinc_6_15_2015_7 (Coverage across the genomes)</button> 
+<div id="Pheur_Coinc_6_15_2015_7_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Coinc_6_15_2015_7.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Coinc_6_15_2015_7.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Coinc_6_15_2015_7_3">Pheur_Coinc_6_15_2015_7 (Mapping quality)</button> 
+<div id="Pheur_Coinc_6_15_2015_7_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Coinc_6_15_2015_7.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Coinc_6_15_2015_7.pdf">
+    </embed>
+</object>
+</div>
+
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+
+# #Physconelloides_eurysema_4
+# library("EBImage")
+# # gc()
+# setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_eurysema_4/")
+# # net_name<-c("Proctophyllodes_lusciniae.png","Trouessartia_trouessarti.png")
+# net_name <- list.files(path= "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_eurysema_4/",pattern = "png$") 
+# display(readImage(net_name), method="browser")
+```
+##### Fig. S10. sppIDer results of Physconelloides eurysema 5 samples
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Urcam_3_14_2016_3">*Pheur_Urcam_3_14_2016_3 (Species coverage)</button> 
+<div id="Pheur_Urcam_3_14_2016_3" class="collapse">    
+<object data="OUT_speciesDepth_Pheur_Urcam_3_14_2016_3.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheur_Urcam_3_14_2016_3.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Urcam_3_14_2016_3_2">Pheur_Urcam_3_14_2016_3 (Coverage across the genomes)</button> 
+<div id="Pheur_Urcam_3_14_2016_3_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheur_Urcam_3_14_2016_3.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheur_Urcam_3_14_2016_3.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheur_Urcam_3_14_2016_3_3">Pheur_Urcam_3_14_2016_3 (Mapping quality)</button> 
+<div id="Pheur_Urcam_3_14_2016_3_3" class="collapse">    
+<object data="OUT_plotMQ_Pheur_Urcam_3_14_2016_3.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheur_Urcam_3_14_2016_3.pdf">
+    </embed>
+</object>
+</div>
+
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+
+# #Physconelloides_eurysema_5
+# library("EBImage")
+# # gc()
+# setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_eurysema_5/")
+# # net_name<-c("Proctophyllodes_lusciniae.png","Trouessartia_trouessarti.png")
+# net_name <- list.files(path= "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_eurysema_5/",pattern = "png$") 
+# display(readImage(net_name), method="browser")
+```
+##### Fig. S11. sppIDer results of Physconelloides robbinsi samples
+
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheme_Memel_5_26_2015_8">*Pheme_Memel_5_26_2015_8 (Species coverage)</button> 
+<div id="Pheme_Memel_5_26_2015_8" class="collapse">    
+<object data="OUT_speciesDepth_Pheme_Memel_5_26_2015_8.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheme_Memel_5_26_2015_8.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheme_Memel_5_26_2015_8_2">Pheme_Memel_5_26_2015_8 (Coverage across the genomes)</button> 
+<div id="Pheme_Memel_5_26_2015_8_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheme_Memel_5_26_2015_8.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheme_Memel_5_26_2015_8.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheme_Memel_5_26_2015_8_3">Pheme_Memel_5_26_2015_8 (Mapping quality)</button> 
+<div id="Pheme_Memel_5_26_2015_8_3" class="collapse">    
+<object data="OUT_plotMQ_Pheme_Memel_5_26_2015_8.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheme_Memel_5_26_2015_8.pdf">
+    </embed>
+</object>
+</div>
+
+
+
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Phrob_Mecec_3_16_2016_10">Phrob_Mecec_3_16_2016_10 (Species coverage)</button> 
+<div id="Phrob_Mecec_3_16_2016_10" class="collapse">    
+<object data="OUT_speciesDepth_Phrob_Mecec_3_16_2016_10.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Phrob_Mecec_3_16_2016_10.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Phrob_Mecec_3_16_2016_10_2">Phrob_Mecec_3_16_2016_10 (Coverage across the genomes)</button> 
+<div id="Phrob_Mecec_3_16_2016_10_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Phrob_Mecec_3_16_2016_10.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Phrob_Mecec_3_16_2016_10.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Phrob_Mecec_3_16_2016_10_3">Phrob_Mecec_3_16_2016_10 (Mapping quality)</button> 
+<div id="Phrob_Mecec_3_16_2016_10_3" class="collapse">    
+<object data="OUT_plotMQ_Phrob_Mecec_3_16_2016_10.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Phrob_Mecec_3_16_2016_10.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Phrob_Mecec_3_16_2016_11">Phrob_Mecec_3_16_2016_11 (Species coverage)</button> 
+<div id="Phrob_Mecec_3_16_2016_11" class="collapse">    
+<object data="OUT_speciesDepth_Phrob_Mecec_3_16_2016_11.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Phrob_Mecec_3_16_2016_11.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Phrob_Mecec_3_16_2016_11_2">Phrob_Mecec_3_16_2016_11 (Coverage across the genomes)</button> 
+<div id="Phrob_Mecec_3_16_2016_11_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Phrob_Mecec_3_16_2016_11.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Phrob_Mecec_3_16_2016_11.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Phrob_Mecec_3_16_2016_11_3">Phrob_Mecec_3_16_2016_11 (Mapping quality)</button> 
+<div id="Phrob_Mecec_3_16_2016_11_3" class="collapse">    
+<object data="OUT_plotMQ_Phrob_Mecec_3_16_2016_11.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Phrob_Mecec_3_16_2016_11.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Phrob_Mecec_6_15_2015_6">Phrob_Mecec_6_15_2015_6 (Species coverage)</button> 
+<div id="Phrob_Mecec_6_15_2015_6" class="collapse">    
+<object data="OUT_speciesDepth_Phrob_Mecec_6_15_2015_6.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Phrob_Mecec_6_15_2015_6.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Phrob_Mecec_6_15_2015_6_2">Phrob_Mecec_6_15_2015_6 (Coverage across the genomes)</button> 
+<div id="Phrob_Mecec_6_15_2015_6_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Phrob_Mecec_6_15_2015_6.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Phrob_Mecec_6_15_2015_6.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Phrob_Mecec_6_15_2015_6_3">Phrob_Mecec_6_15_2015_6 (Mapping quality)</button> 
+<div id="Phrob_Mecec_6_15_2015_6_3" class="collapse">    
+<object data="OUT_plotMQ_Phrob_Mecec_6_15_2015_6.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Phrob_Mecec_6_15_2015_6.pdf">
+    </embed>
+</object>
+</div>
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+# 
+# #Physconelloides_robbinsi
+# library("EBImage")
+# # gc()
+# setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_robbinsi/")
+# # net_name<-c("Proctophyllodes_lusciniae.png","Trouessartia_trouessarti.png")
+# net_name <- list.files(path= "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_robbinsi/",pattern = "png$") 
+# display(readImage(net_name), method="browser")
+```
+##### Fig. S12. sppIDer results of Physconelloides emersoni samples
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Phrob_Mecec_5_26_2015_7">*Phrob_Mecec_5_26_2015_7 (Species coverage)</button> 
+<div id="Phrob_Mecec_5_26_2015_7" class="collapse">    
+<object data="OUT_speciesDepth_Phrob_Mecec_5_26_2015_7.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Phrob_Mecec_5_26_2015_7.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Phrob_Mecec_5_26_2015_7_2">Phrob_Mecec_5_26_2015_7 (Coverage across the genomes)</button> 
+<div id="Phrob_Mecec_5_26_2015_7_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Phrob_Mecec_5_26_2015_7.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Phrob_Mecec_5_26_2015_7.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Phrob_Mecec_5_26_2015_7_3">Phrob_Mecec_5_26_2015_7 (Mapping quality)</button> 
+<div id="Phrob_Mecec_5_26_2015_7_3" class="collapse">    
+<object data="OUT_plotMQ_Phrob_Mecec_5_26_2015_7.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Phrob_Mecec_5_26_2015_7.pdf">
+    </embed>
+</object>
+</div>
+
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheme_Memel_3_16_2016_2">Pheme_Memel_3_16_2016_2 (Species coverage)</button> 
+<div id="Pheme_Memel_3_16_2016_2" class="collapse">    
+<object data="OUT_speciesDepth_Pheme_Memel_3_16_2016_2.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheme_Memel_3_16_2016_2.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheme_Memel_3_16_2016_2_2">Pheme_Memel_3_16_2016_2 (Coverage across the genomes)</button> 
+<div id="Pheme_Memel_3_16_2016_2_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheme_Memel_3_16_2016_2.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheme_Memel_3_16_2016_2.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheme_Memel_3_16_2016_2_3">Pheme_Memel_3_16_2016_2 (Mapping quality)</button> 
+<div id="Pheme_Memel_3_16_2016_2_3" class="collapse">    
+<object data="OUT_plotMQ_Pheme_Memel_3_16_2016_2.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheme_Memel_3_16_2016_2.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheme_Memel_3_16_2016_8">Pheme_Memel_3_16_2016_8 (Species coverage)</button> 
+<div id="Pheme_Memel_3_16_2016_8" class="collapse">    
+<object data="OUT_speciesDepth_Pheme_Memel_3_16_2016_8.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheme_Memel_3_16_2016_8.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheme_Memel_3_16_2016_8_2">Pheme_Memel_3_16_2016_8 (Coverage across the genomes)</button> 
+<div id="Pheme_Memel_3_16_2016_8_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheme_Memel_3_16_2016_8.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheme_Memel_3_16_2016_8.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheme_Memel_3_16_2016_8_3">Pheme_Memel_3_16_2016_8 (Mapping quality)</button> 
+<div id="Pheme_Memel_3_16_2016_8_3" class="collapse">    
+<object data="OUT_plotMQ_Pheme_Memel_3_16_2016_8.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheme_Memel_3_16_2016_8.pdf">
+    </embed>
+</object>
+</div>
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheme_Memel_6_15_2015_5">Pheme_Memel_6_15_2015_5 (Species coverage)</button> 
+<div id="Pheme_Memel_6_15_2015_5" class="collapse">    
+<object data="OUT_speciesDepth_Pheme_Memel_6_15_2015_5.pdf" width="750px" height="550px">
+    <embed src="OUT_speciesDepth_Pheme_Memel_6_15_2015_5.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheme_Memel_6_15_2015_5_2">Pheme_Memel_6_15_2015_5 (Coverage across the genomes)</button> 
+<div id="Pheme_Memel_6_15_2015_5_2" class="collapse">    
+<object data="OUT_sppIDerDepthPlot-covBins_Pheme_Memel_6_15_2015_5.pdf" width="750px" height="550px">
+    <embed src="OUT_sppIDerDepthPlot-covBins_Pheme_Memel_6_15_2015_5.pdf">
+    </embed>
+</object>
+</div>
+<button class="btn btn-link" data-toggle="collapse" data-target="#Pheme_Memel_6_15_2015_5_3">Pheme_Memel_6_15_2015_5 (Mapping quality)</button> 
+<div id="Pheme_Memel_6_15_2015_5_3" class="collapse">    
+<object data="OUT_plotMQ_Pheme_Memel_6_15_2015_5.pdf" width="750px" height="550px">
+    <embed src="OUT_plotMQ_Pheme_Memel_6_15_2015_5.pdf">
+    </embed>
+</object>
+</div>
+
+<!-- ### Fig. S13. Raw phylogenetic network of Columbicola -->
+
+<!-- <button class="btn btn-link" data-toggle="collapse" data-target="#Columbicola_network">Columbicola_network</button>  -->
+<!-- <div id="Columbicola_network" class="collapse">     -->
+<!-- <object data="network_columbicola.pdf" width="750px" height="550px"> -->
+<!--     <embed src="network_columbicola.pdf"> -->
+<!--     </embed> -->
+<!-- </object> -->
+<!-- </div> -->
+
+
+
+
+<!-- ### Fig. S14. Raw phylogenetic network of Physconelloides -->
+
+<!-- <button class="btn btn-link" data-toggle="collapse" data-target="#Physconelloides_network">Physconelloides_network</button>  -->
+<!-- <div id="Physconelloides_network" class="collapse">     -->
+<!-- <object data="network_physconelloides.pdf" width="750px" height="550px"> -->
+<!--     <embed src="network_physconelloides.pdf"> -->
+<!--     </embed> -->
+<!-- </object> -->
+<!-- </div> -->
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+# 
+# #Physconelloides_emersoni
+# library("EBImage")
+# # gc()
+# setwd("/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_emersoni/")
+# # net_name<-c("Proctophyllodes_lusciniae.png","Trouessartia_trouessarti.png")
+# net_name <- list.files(path= "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/sppIDer/columbicola/png/Physconelloides_emersoni/",pattern = "png$") 
+# display(readImage(net_name), method="browser")
+# invisible(gc())
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+#to calculate if the proportion of reticulation given the number of comparison was greater than expected.
+# prop.test(x = c(7, 4), n = c(15, 28)      alternative = "greater")
+```
+
+<br>
+
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+ data=read.csv(file = "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/introgressed_regions/Table_S3.csv")
+ kable(data, caption = "Table S3. Summmary statistics of the assemblies of the putatively introgressed reads detected by sppIDer.") %>%
+   kable_styling() %>%
+   scroll_box(width = "1200px", height = "1200px")
+ 
+
+```
+
+<br>
+
+```{r echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', fig.align="center"}
+ data=read.csv(file = "/Volumes/GoogleDrive/My Drive/manuscritos/Introgression/Table_S4.csv")
+ kable(data, caption = "Table S4. Summmary of pairwise genetic distances (uncorrected) between samples of Columbicola and Physconelloides.") %>%
+   kable_styling() %>%
+   scroll_box(width = "1200px", height = "180px")
+ 
+
+```
+
+
+<br>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#selected_genes_columbicola"> Fig. S13. Examples of individual gene trees (Columbicola) </button> 
+<div id="selected_genes_columbicola" class="collapse">    
+<object data="selected_genes_columbicola.pdf" width="750px" height="550px">
+    <embed src="selected_genes_columbicola.pdf">
+    </embed>
+</object>
+</div>
+
+<button class="btn btn-link" data-toggle="collapse" data-target="#selected_genes_physconelloides"> Fig. S14. Examples of individual gene trees (Physconelloides)</button> 
+<div id="selected_genes_physconelloides" class="collapse">    
+<object data="selected_genes_physconelloides.pdf" width="750px" height="550px">
+    <embed src="selected_genes_physconelloides.pdf">
+    </embed>
+</object>
+</div>
+
+
+
